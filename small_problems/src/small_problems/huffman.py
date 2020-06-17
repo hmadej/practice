@@ -32,10 +32,10 @@ class Node:
 class HuffmanTree:
     def __init__(self, s: str, f: Dict[str, int]=None):
         self.freq = f
-        self.tree, self.msg = self._encode(s)
+        self.tree, self.msg = self._generate(s)
         
 
-    def _encode(self, s: str):
+    def _generate(self, s: str):
         if self.freq:
             freq = self.freq
         else:
