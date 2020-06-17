@@ -15,16 +15,32 @@ class Node:
 
     def __lt__(self, other):
         return self.frequency < other.frequency
-    
+
+    def decode(self, emitter):
+        if self.char:
+            return self.char
+        
+        bit = next(emitter)
+        if bit == '0':
+            return self.right.decode()
+        elif bit == '1':
+            return self.left.decode()
+        else:
+            raise ValueError(f"Not a bit value! ={bit}")
+
 
 class HuffmanTree:
     def __init__(self, s: str, f: Dict[str, int]=None):
-        self.tree = self._encode(s)
         self.freq = f
+        self.tree, self.msg = self._encode(s)
+        
 
     def _encode(self, s: str):
-        freq = self.freq if self.freq else dict(Counter(s).most_common())
-        
+        if self.freq:
+            freq = self.freq
+        else:
+            freq = dict(Counter(s).most_common())
+            
         h = []
         for k, v in freq.items():
             heapq.heappush(h, Node(v, k))
@@ -36,6 +52,19 @@ class HuffmanTree:
             heapq.heappush(h, Node(combined_freq, None, left, right))
         
         return h[0]
+    
+    def decode(self, bit_string: str):
+        def emit(bit_string: str):
+            for bit in bit_string:
+                yield bit
 
-    def _decode(self, bit_string: str):
-        pass
+        decoded_string = ''
+        while True:
+            try:
+                decoded_string += self.tree.decode(emit(bit_string))
+            except StopIteration:
+                break
+
+        return decoded_string
+
+
