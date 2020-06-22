@@ -17,15 +17,15 @@ class Node:
     def __lt__(self, other):
         return self.frequency < other.frequency
 
-    def decode(self, emitter):
+    def decode(self, index: int, bit_string: str):
         if self.character:
-            return self.character
+            return index, self.character
         
-        bit = next(emitter)
+        bit = bit_string[index]
         if bit == '1':
-            return self.right.decode(emitter)
+            return self.right.decode(index+1, bit_string)
         elif bit == '0':
-            return self.left.decode(emitter)
+            return self.left.decode(index+1, bit_string)
         else:
             raise ValueError(f"Not a bit value! ={bit}")
 
@@ -72,18 +72,11 @@ class HuffmanTree:
         return encoded
 
     def decode(self, bit_string: str): 
-        # doesn't work need to fix how bit_string is feed, through 
-        def emit(bit_string: str):
-            for bit in bit_string:
-                yield bit
-
+        index = 0
         decoded_string = ''
-        while True:
-            try:
-                decoded_string += self.tree.decode(emit(bit_string))
-            except StopIteration:
-                break
-
+        while index < len(bit_string):
+            index, char = self.tree.decode(index, bit_string)
+            decoded_string += char
         return decoded_string
 
 
