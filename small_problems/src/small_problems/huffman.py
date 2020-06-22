@@ -37,7 +37,7 @@ class Node:
                 self.left.populate_encoder(bit_string + "0", d)
             if self.right:
                 self.right.populate_encoder(bit_string + "1", d)
-
+# TODO use bytes instead of string, and bit manipulation to encode bit_string
 class HuffmanTree:
     def __init__(self, s: str, f: Dict[str, int]=None):
         self.freq = f
