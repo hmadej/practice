@@ -3,6 +3,11 @@ from typing import Tuple, Dict
 import heapq
 
 
+def generate_binary(n: int) -> int:
+    for i in range(n.bit_length()):
+        yield 0b1 & (n >> i)
+
+
 class Node:
     def __init__(self, frequency: int, char: str = None, left = None, right = None):
         self.frequency = frequency
@@ -17,33 +22,34 @@ class Node:
     def __lt__(self, other):
         return self.frequency < other.frequency
 
-    def decode(self, index: int, bit_string: str):
+    def decode(self, num: int):
         if self.character:
-            return index, self.character
+            return num >> 1, self.character
         
-        bit = bit_string[index]
-        if bit == '1':
-            return self.right.decode(index+1, bit_string)
-        elif bit == '0':
-            return self.left.decode(index+1, bit_string)
+        bit = 0b1 & (num)
+        if bit == 1:
+            return self.right.decode(num >> 1)
+        elif bit == 0:
+            return self.left.decode(num >> 1)
         else:
             raise ValueError(f"Not a bit value! ={bit}")
 
-    def populate_encoder(self, bit_string: str, d: Dict[str, str]):
+    def populate_encoder(self, num: int, d: Dict[str, int]):
         if self.character:
-            d[self.character] = bit_string
+            d[self.character] = num
         else:
             if self.left:
-                self.left.populate_encoder(bit_string + "0", d)
+                self.left.populate_encoder((num << 1), d)
             if self.right:
-                self.right.populate_encoder(bit_string + "1", d)
-# TODO use bytes instead of string, and bit manipulation to encode bit_string
+                self.right.populate_encoder((num << 1) | 0b1, d)
+
+# TODO leading zeros are not perserved in integers, use different representation!
 class HuffmanTree:
     def __init__(self, s: str, f: Dict[str, int]=None):
         self.freq = f
         self.tree = self._generate(s)
         self.encode_dictionary = dict()
-        self.tree.populate_encoder("", self.encode_dictionary)
+        self.tree.populate_encoder(0, self.encode_dictionary)
         self.msg = self.encode(s)
 
 
@@ -66,16 +72,18 @@ class HuffmanTree:
         return h[0]
 
     def encode(self, s: str):
-        encoded = ""
+        encoded = 0
         for char in s:
-            encoded += self.encode_dictionary[char]
+            num = self.encode_dictionary[char]
+            for bit in generate_binary(num):
+                encoded = (encoded | bit) << 1
         return encoded
 
-    def decode(self, bit_string: str): 
-        index = 0
+    def decode(self, num: int): 
         decoded_string = ''
-        while index < len(bit_string):
-            index, char = self.tree.decode(index, bit_string)
+        remaining_num = num
+        while remaining_num > 0:
+            remaining_num, char = self.tree.decode(remaining_num)
             decoded_string += char
         return decoded_string
 
