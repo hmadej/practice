@@ -18,28 +18,32 @@ def take(jobs: List) -> int:
     if len(jobs) == 0:
         return 0
 
-    start_index = 1
     start, end, cost = jobs[0]
-
-    for index, job in enumerate(jobs[1:]):
-        if end <= job[0]:
-            break
-        start_index += 1
+    start_index = linear_search(end, jobs)
 
     return max(cost + take(jobs[start_index+1:]), take(jobs[1:]))
     
+
+def linear_search(target, l):
+    start_index = 1
+    for index, job in enumerate(l[1:]):
+        if target <= job[0]:
+            break
+        start_index += 1
+    return start_index
 
 @memo
 def binary_take(jobs: List) -> int:
     if len(jobs) == 0:
         return 0
- 
+    
     start, end, cost = jobs[0]
     start_index = binary_search(end, jobs[1:])
     if (end > jobs[start_index][0]):
         start_index += 1
     
     return max(cost + binary_take(jobs[start_index+1:]), binary_take(jobs[1:]))
+
 
 def binary_search(target, l: List) -> int:
     if (size := len(l)) == 0:
@@ -55,9 +59,9 @@ def binary_search(target, l: List) -> int:
     return bottom
 
 
-start  = [randint(1,2500) for _ in range(5000)]
-end    = [randint(1,1000) + x for x in start]
-volume = [randint(5,100) for _ in start]
+start  = [randint(1,20000) for _ in range(10000)]
+end    = [randint(1,20000) + x for x in start]
+volume = [randint(1,1000) for _ in start]
 
 jobs = sorted(list(zip(start, end, volume)), key = lambda x: x[0])
 
