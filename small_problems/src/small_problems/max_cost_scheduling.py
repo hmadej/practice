@@ -23,12 +23,12 @@ def take(jobs: List) -> int:
 
     for index, job in enumerate(jobs[1:]):
         if end <= job[0]:
-            start_index = index
             break
-    print(start_index)
+        start_index += 1
 
     return max(cost + take(jobs[start_index+1:]), take(jobs[1:]))
     
+
 @memo
 def binary_take(jobs: List) -> int:
     if len(jobs) == 0:
@@ -36,26 +36,28 @@ def binary_take(jobs: List) -> int:
  
     start, end, cost = jobs[0]
     start_index = binary_search(end, jobs[1:])
-    print(start_index)
+    if (end > jobs[start_index][0]):
+        start_index += 1
     
-    return max(cost + take(jobs[start_index+1:]), take(jobs[1:]))
-
+    return max(cost + binary_take(jobs[start_index+1:]), binary_take(jobs[1:]))
 
 def binary_search(target, l: List) -> int:
-    half_size = len(l) // 2
-    index = half_size
-    while ((value := l[index]) != target and half_size != 1):
-        half_size = (half_size // 2)
-        if value[0] > target:
-            index -= half_size
+    if (size := len(l)) == 0:
+        return 0
+    bottom = 0
+    top = size
+    while (bottom < top):
+        middle = (bottom + top) // 2
+        if l[middle][0] < target:
+            bottom = middle + 1
         else:
-            index += half_size
-    return index
+            top = middle
+    return bottom
 
 
-start  = [randint(1,1000) for _ in range(50)]
-end    = [randint(1,1000)+1 for _ in range(50)]
-volume = [randint(50,1000) for _ in range(50)]
+start  = [randint(1,2500) for _ in range(5000)]
+end    = [randint(1,1000) + x for x in start]
+volume = [randint(5,100) for _ in start]
 
 jobs = sorted(list(zip(start, end, volume)), key = lambda x: x[0])
 
@@ -70,4 +72,3 @@ t = process_time()
 res2 = binary_take(jobs)
 elapsed_t2 = process_time() - t
 print(res2, elapsed_t2)
-
