@@ -7,7 +7,7 @@ from random import randint
 def memo(f):
     memo = dict()
     def wrapper(x):
-        if (key := frozenset(x)) not in memo:
+        if (key := len(x)) not in memo:
             memo[key] = f(x)
         return memo[key]
     return wrapper
